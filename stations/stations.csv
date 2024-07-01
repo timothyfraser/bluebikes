@@ -1,0 +1,430 @@
+id,station,x,y,docks,deployment_year
+A32000,Fan Pier,-71.0446,42.3534,15,2011
+A32001,Union Square - Brighton Ave at Cambridge St,-71.1373,42.3533,19,2011
+A32002,Commonwealth Ave at Agganis Way,-71.119,42.3517,19,2011
+A32003,B.U. Central - 725 Comm. Ave.,-71.1083,42.3504,11,2011
+A32004,Longwood Ave at Binney St,-71.1065,42.3386,15,2011
+A32005,Brighton Mills - 370 Western Ave,-71.1378,42.3615,15,2011
+A32006,Soldiers Field Park - 111 Western Ave,-71.1183,42.3643,15,2011
+A32008,Park Dr at Buswell St,-71.1053,42.3472,15,2012
+A32009,South End Library - Tremont St at W Newton St,-71.0768,42.3413,15,2011
+A32010,South Station - 700 Atlantic Ave,-71.0555,42.3522,47,2011
+A32011,Innovation Lab - 125 Western Ave at Batten Way,-71.1246,42.3637,19,2011
+A32012,Packard's Corner - Commonwealth Ave at Brighton Ave,-71.1238,42.3523,27,2011
+A32013,Surface Rd at India St,-71.0522,42.3582,19,2015
+A32017,Commonwealth Ave at Griggs St,-71.1328,42.3492,15,2012
+A32019,175 N Harvard St,-71.1292,42.3638,18,2014
+A32022,Edwards Playground - Main St at Eden St,-71.0686,42.379,19,2015
+A32023,Bunker Hill Community College,-71.0691,42.3741,23,2015
+A32025,Nashua Street at Red Auerbach Way,-71.0643,42.3657,37,2016
+A32026,Purchase St at Pearl St,-71.0532,42.3547,19,2016
+A32027,NA,-71.0274,42.3798,15,pre-2017
+A32028,Bennington St at Byron St,-71.0162,42.3835,15,2016
+A32029,Piers Park,-71.0353,42.365,19,2016
+A32030,Maverick Square - Lewis Mall,-71.0398,42.3688,33,2016
+A32031,East Boston Neighborhood Health Center - 20 Maverick Square,-71.0394,42.3695,16,2016
+A32032,Airport T Stop - Bremen St at Brooks St,-71.0328,42.3741,15,2016
+A32033,The Eddy - New St at Sumner St,-71.0442,42.3707,15,2016
+A32034,Glendon St at Condor St,-71.0302,42.3824,19,2016
+A32035,Orient Heights T Stop - Bennington St at Saratoga St,-71.0061,42.3868,19,2016
+A32036,Boston East - 126 Border St,-71.041,42.3733,15,2016
+A32037,Washington St at Egremont Rd,-71.1413,42.3429,15,2018
+A32038,Faneuil St at Arlington St,-71.1599,42.3528,15,2018
+A32039,Bennington St at Constitution Beach,-71.0106,42.3852,17,2018
+A32040,Honan Library,-71.1285,42.3603,15,2018
+A32041,Central Square East Boston,-71.0392,42.3754,15,2019
+A32042,Surface Rd at Summer St,-71.0566,42.3529,27,2019
+A32043,Western Ave at Richardson St,-71.1439,42.3618,19,2019
+A32044,Maverick St at Massport Path,-71.0334,42.3677,15,2019
+A32045,Boston Landing,-71.1417,42.3566,17,2019
+A32046,Canal St at Causeway St,-71.0609,42.3653,23,2020
+A32047,Broad St at Central St,-71.0543,42.3585,0,2020
+A32048,Marion St at White St,-71.0391,42.3807,0,2020
+A32049,Gove St at Orleans St,-71.0356,42.3706,19,2020
+A32050,Porzio Park,-71.0288,42.3641,17,2020
+A32051,Day Sq,-71.0277,42.3793,16,2020
+A32052,Harvard Stadium: N. Harvard St at Soldiers Field Rd,-71.1242,42.368,15,2020
+A32053,Valenti Way at Haverhill St,-71.0593,42.3647,24,2021
+B32000,Newbury St at Hereford St,-71.086,42.3487,23,2011
+B32002,Ruggles T Stop - Columbus Ave at Melnea Cass Blvd,-71.088,42.3362,18,2011
+B32003,HMS/HSPH - Avenue Louis Pasteur at Longwood Ave,-71.1029,42.3374,25,2011
+B32004,Aquarium T Stop - 200 Atlantic Ave,-71.0514,42.3599,23,2011
+B32005,Christian Science Plaza - Massachusetts Ave at Westland Ave,-71.0858,42.3437,19,2011
+B32006,Colleges of the Fenway - Fenway at Avenue Louis Pasteur,-71.1006,42.3401,15,2011
+B32007,Seaport Square - Seaport Blvd at Northern Ave,-71.0444,42.3515,19,2011
+B32008,Boston City Hall - 28 State St,-71.0576,42.3589,21,2011
+B32010,Kenmore Square,-71.097,42.3487,27,2011
+B32011,NA,-71.0975,42.3447,19,pre-2017
+B32012,Northeastern University - North Parking Lot,-71.0902,42.3418,15,2011
+B32013,Brigham Circle - Francis St at Huntington Ave,-71.1041,42.3346,15,2011
+B32014,Seaport Hotel - Congress St at Seaport Ln,-71.0417,42.3488,19,2011
+B32015,Landmark Center - Brookline Ave at Park Dr,-71.1024,42.3437,15,2011
+B32016,Beacon St at Massachusetts Ave,-71.0898,42.3508,19,2011
+B32017,Dudley Square - Bolling Building,-71.0839,42.3298,18,2011
+B32018,Boylston St at Massachusetts Ave,-71.0868,42.3474,15,2011
+B32020,Burlington Ave at Brookline Ave,-71.1007,42.3457,15,2013
+B32021,Wentworth Institute of Technology - Huntington Ave at Vancouver St,-71.0963,42.3376,14,2015
+B32022,Roxbury YMCA - Warren St at MLK Blvd,-71.0824,42.3179,11,2016
+B32023,MLK Blvd at Washington St,-71.0913,42.3214,15,2016
+B32025,Uphams Corner T Stop - Magnolia St at Dudley St,-71.0698,42.3187,15,2016
+B32026,Washington St at Melnea Cass Blvd,-71.0812,42.3328,19,2016
+B32027,NCAAA - Walnut Ave at Crawford St,-71.0919,42.3169,15,2016
+B32028,Grove Hall Library - 41 Geneva Ave,-71.081,42.3079,15,2016
+B32029,Columbia Rd at Ceylon St,-71.0729,42.3096,15,2016
+B32030,Walnut Ave at Warren St,-71.0832,42.3241,15,2016
+B32031,Bowdoin St at Quincy St,-71.0651,42.3079,15,2016
+B32032,Government Center - Cambridge St at Court St,-71.0598,42.3598,23,2018
+B32033,Huntington Ave at Mass Art,-71.0989,42.3366,15,2018
+B32034,Boylston St at Jersey St,-71.0973,42.3447,15,2018
+B32035,Cleveland Circle,-71.1506,42.3355,15,2018
+B32036,One Brigham Circle,-71.1045,42.3339,15,2018
+B32037,Deerfield St at Commonwealth Ave,-71.0973,42.3492,19,2018
+B32055,Bartlett St at John Elliot Sq,-71.0902,42.3295,15,2018
+B32056,Tremont St at Hamilton Pl,-71.0617,42.3567,19,2018
+B32057,Blue Hill Ave at Southwood St,-71.078,42.3179,15,2018
+B32058,Lansdowne T Stop,-71.1002,42.3473,27,2019
+B32059,Whittier St Health Center,-71.0922,42.3329,19,2019
+B32060,700 Commonwealth Ave.,-71.1039,42.3496,16,2019
+B32061,One Beacon St,-71.0614,42.3585,16,2021
+B32062,Forsyth St at Huntington Ave,-71.0905,42.3392,15,2021
+C23045,Morton St T,-71.0862,42.2807,15,2018
+C32000,Tremont St at E Berkeley St,-71.0696,42.3454,19,2011
+C32001,Roxbury Crossing T Stop - Columbus Ave at Tremont St,-71.0952,42.3312,23,2011
+C32002,Boston Medical Center - E Concord St at Harrison Ave,-71.0731,42.3364,19,2019
+C32003,Back Bay T Stop - Dartmouth St at Stuart St,-71.0766,42.3481,19,2011
+C32004,Massachusetts Ave at Columbus Ave,-71.0802,42.3395,14,2011
+C32005,Washington St at Lenox St,-71.079,42.3351,15,2011
+C32006,Washington St at Rutland St,-71.074,42.3385,27,2011
+C32007,Prudential Center - 101 Huntington Ave,-71.0807,42.3465,25,2011
+C32008,Boylston St at Fairfield St,-71.0824,42.3488,19,2011
+C32009,Dorchester Ave at Gillette Park,-71.0574,42.344,15,2011
+C32010,Congress St at Sleeper St,-71.0493,42.351,19,2011
+C32012,Andrew T Stop - Dorchester Ave at Dexter St,-71.057,42.3305,15,2013
+C32013,JFK/UMass T Stop,-71.0512,42.3203,15,2012
+C32014,University of Massachusetts Boston - Campus Center,-71.0365,42.3122,19,2012
+C32015,NA,-71.0754,42.3253,15,pre-2017
+C32016,W Broadway at Dorchester St,-71.0462,42.336,17,2013
+C32017,South Boston Library - 646 E Broadway,-71.0388,42.3357,15,2013
+C32018,E Cottage St at Columbia Rd,-71.062,42.3206,19,2013
+C32019,Uphams Corner,-71.0654,42.3173,15,2013
+C32020,ID Building East,-71.0287,42.3448,17,2014
+C32021,ID Building West,-71.0316,42.3448,19,2014
+C32022,Newmarket Square T Stop - Massachusetts Ave at Newmarket Square,-71.0665,42.3266,15,2014
+C32023,Murphy Skating Rink - 1880 Day Blvd,-71.0237,42.3364,19,2014
+C32024,State Street at Channel Center,-71.0526,42.3441,19,2014
+C32025,Ink Block - Harrison Ave at Herald St,-71.0632,42.3459,15,2015
+C32027,Franklin Park - Seaver St at Humboldt Ave,-71.0922,42.3098,15,2015
+C32028,The Lawn on D,-71.044,42.3448,19,2015
+C32029,W Broadway at D St,-71.0514,42.3391,23,2015
+C32030,Franklin Park Zoo - Franklin Park Rd at Blue Hill Ave,-71.0853,42.3035,14,2015
+C32031,Ryan Playground - Dorchester Ave at Harbor View St,-71.0567,42.3176,15,2015
+C32032,Congress St at Northern Ave,-71.0376,42.3481,15,2016
+C32033,Savin Hill T Stop - S Sydney St at Bay St,-71.0539,42.3106,14,2016
+C32034,Watermark Seaport - Boston Wharf Rd at Seaport Blvd,-71.0457,42.3516,15,2016
+C32035,Troy Boston,-71.0623,42.3437,14,2017
+C32036,Seaport Blvd at Sleeper St,-71.0482,42.3532,15,2017
+C32037,Four Corners - 157 Washington St,-71.0793,42.3041,11,2018
+C32038,Washington St at Talbot Ave,-71.0718,42.2903,17,2018
+C32039,Park St at Norwell St,-71.0782,42.2944,15,2018
+C32040,Gallivan Blvd at Adams St,-71.0547,42.283,15,2018
+C32041,Fields Corner T Stop,-71.0607,42.2996,0,2018
+C32042,Washington St at Bowdoin St,-71.0735,42.2992,0,2018
+C32043,Talbot Ave At Blue Hill Ave,-71.0871,42.2946,15,2018
+C32044,Blue Hill Ave at Almont St,-71.0937,42.2746,19,2018
+C32045,Mattapan T Stop,-71.0936,42.2679,15,2018
+C32046,Roslindale Village - Washington St,-71.1282,42.2863,15,2018
+C32047,Roslindale Village - South St,-71.1278,42.2871,15,2018
+C32048,Archdale Rd at Washington St,-71.1212,42.2927,15,2018
+C32049,Thetford Ave at Norfolk St,-71.0794,42.2862,15,2018
+C32050,Mattapan Library,-71.0932,42.2774,15,2018
+C32051,Farragut Rd at E. 6th St,-71.025,42.3334,23,2018
+C32052,Columbia Rd at Tierney Community Center,-71.0506,42.3302,19,2018
+C32053,NA,-71.0575,42.3428,15,pre-2017
+C32055,Codman Square Library,-71.0711,42.2874,17,2018
+C32056,Tremont St at Northampton St,-71.0815,42.3389,19,2018
+C32057,Harrison Ave at Mullins Way,-71.0638,42.3452,19,2018
+C32058,Ring Rd,-71.0804,42.3483,15,2018
+C32059,Belgrade Ave at Walworth St,-71.1367,42.2863,15,2018
+C32060,Tremont St at W. Dedham St,-71.0742,42.3425,15,2019
+C32061,Albany St at E. Brookline St,-71.0689,42.3366,15,2019
+C32062,Ashmont T Stop,-71.0641,42.2857,15,2019
+C32063,Mass Ave T Station,-71.0834,42.3414,16,2019
+C32064,Sydney St at Carson St,-71.0536,42.3204,19,2019
+C32065,Adams St at Lonsdale St,-71.0573,42.2917,19,2019
+C32066,NA,-71.0626,42.2918,15,pre-2017
+C32067,Washington St at Peters Park,-71.0669,42.343,19,2019
+C32077,Columbus Ave at W. Canton St,-71.0765,42.3447,19,2019
+C32078,Northbourne Rd at Hyde Park Ave,-71.1177,42.2912,0,2019
+C32079,American Legion Hwy at Cummins Hwy,-71.1169,42.2788,15,2019
+C32080,Mt. Hope St at Hyde Park Ave,-71.1187,42.2848,19,2019
+C32081,Washington St at Denton Terr,-71.1342,42.2807,19,2019
+C32083,Washington St at Walsh Playground,-71.0696,42.2772,19,2019
+C32084,Washington St at Fuller St,-71.0715,42.282,15,2019
+C32085,Centre St at W. Roxbury Post Office,-71.1534,42.2863,19,2019
+C32086,Centre St at Parkway YMCA,-71.1573,42.2828,19,2019
+C32087,Spring St at Powell St,-71.1634,42.2775,19,2019
+C32088,NA,-71.0734,42.2709,15,pre-2017
+C32089,Hyde Park Ave at Walk Hill St,-71.116,42.2961,15,2019
+C32090,Geiger Gibson Community Health Center,-71.0454,42.3189,19,2019
+C32091,645 Summer St,-71.0399,42.3418,19,2020
+C32092,Blue Hill Ave at Havelock St,-71.091,42.286,18,2020
+C32093,Harrison Ave at E. Dedham St,-71.0698,42.3392,19,2020
+C32094,2 Hummingbird Lane at Olmsted Green,-71.095,42.2889,17,2020
+C32095,Bellevue T Stop,-71.1464,42.2861,19,2021
+C32096,Knoll St at Centre St,-71.1366,42.2938,0,2021
+C32097,Roseland St At Dorchester Ave,-71.063,42.2912,0,2021
+C32098,Adams Branch Library,-71.0547,42.286,0,2021
+C32099,Circuit Drive at American Legion Hwy,-71.0917,42.297,19,2021
+C32100,Hyde Park Ave at Arlington St,-71.1216,42.2629,0,2021
+C32102,Walnut Ave at School St,-71.0962,42.3124,19,2021
+C32103,Morton St at Gallivan Blvd,-71.0803,42.2787,15,2021
+C32104,Cleary Sq,-71.1244,42.2556,16,2021
+C32105,606 American Legion Hwy at Canterbury St,-71.1097,42.2858,18,2021
+C32106,555 Metropolitan Ave,-71.1192,42.2681,18,2021
+D32000,Cambridge St at Joy St,-71.0653,42.3613,15,2011
+D32001,New Balance - 20 Guest St,-71.1467,42.3573,15,2011
+D32002,Washington St at Waltham St,-71.0689,42.3416,15,2011
+D32003,NA,-71.0599,42.3662,27,pre-2017
+D32004,Arch St at Franklin St,-71.0582,42.3553,23,2011
+D32005,Copley Square - Dartmouth St at Boylston St,-71.0774,42.3499,33,2011
+D32006,Lewis Wharf at Atlantic Ave,-71.0509,42.3639,19,2011
+D32007,Boylston St at Arlington St,-71.0677,42.3525,31,2011
+D32008,Rowes Wharf at Atlantic Ave,-71.0507,42.3571,15,2011
+D32009,Congress St at Boston City Hall,-71.0575,42.3604,23,2011
+D32010,Cross St at Hanover St,-71.0561,42.3628,19,2011
+D32011,Stuart St at Charles St,-71.0663,42.3511,19,2011
+D32012,Post Office Square,-71.0546,42.3559,19,2011
+D32013,Boylston St at Berkeley St,-71.0733,42.3511,15,2011
+D32014,Tremont St at West St,-71.0633,42.355,15,2011
+D32015,Chinatown Gate Plaza,-71.0594,42.3514,19,2011
+D32016,Charles Circle - Charles St at Cambridge St,-71.0712,42.3608,19,2011
+D32017,Mugar Way at Beacon St,-71.0729,42.3555,19,2011
+D32018,Boston Convention and Exhibition Center - Summer St at West Side Dr,-71.0454,42.3478,23,2012
+D32019,Chinatown T Stop,-71.0627,42.3524,19,2012
+D32020,Main St at Austin St,-71.0646,42.3756,11,2012
+D32021,Warren St at Chelsea St,-71.0603,42.3718,23,2012
+D32022,West End Park,-71.0645,42.3659,35,2012
+D32023,Spaulding Rehabilitation Hospital - Charlestown Navy Yard,-71.0489,42.3783,19,2012
+D32024,Beacon St at Charles St,-71.0698,42.3561,15,2013
+D32026,Hayes Square - Vine St at Moulton St,-71.0566,42.377,19,2013
+D32027,NA,-71.0766,42.3504,15,pre-2017
+D32028,Brighton Center - Washington St at Cambridge St,-71.1503,42.3489,17,2015
+D32029,Washington St at Brock St,-71.1603,42.349,15,2015
+D32030,NA,-71.1503,42.3548,15,pre-2017
+D32031,Oak Square - 615 Washington St,-71.1665,42.3506,15,2016
+D32032,Silber Way,-71.1006,42.3495,19,2017
+D32033,Commonwealth Ave at Chiswick Rd,-71.1517,42.3402,19,2018
+D32034,Commonwealth Ave at Kelton St,-71.14,42.3484,15,2018
+D32035,Harvard Ave at Brainerd Rd,-71.1302,42.3495,15,2018
+D32036,Main St at Baldwin St,-71.0706,42.3809,19,2018
+D32037,Medford St at Charlestown BCYF,-71.0606,42.3804,19,2018
+D32038,Main St at Thompson Sq,-71.0638,42.3749,15,2018
+D32039,Charlestown Navy Yard,-71.0548,42.3741,23,2018
+D32040,Williams St at Washington St,-71.1077,42.3065,19,2018
+D32041,Stony Brook T Stop,-71.1044,42.317,15,2018
+D32042,Park Plaza at Charles St S.,-71.0678,42.3518,19,2018
+D32043,Harrison Ave at Bennet St,-71.0621,42.3494,19,2018
+D32044,NA,-71.0574,42.3625,15,pre-2017
+D32045,Dartmouth St at Newbury St,-71.0778,42.351,19,2018
+D32046,Boylston St at Exeter St,-71.0795,42.3496,19,2018
+D32047,Clarendon St at Newbury St,-71.0756,42.3516,19,2019
+D32048,Shawmut Ave at Oak St W,-71.0656,42.3485,15,2019
+D32049,Stuart St at Berkeley St,-71.0724,42.3495,19,2019
+D32050,Blossom St at Charles St,-71.0696,42.3644,15,2019
+D32051,NA,-71.0708,42.3587,15,pre-2017
+D32052,Jamaica St at South St,-71.1157,42.306,19,2019
+D32053,Sullivan Square,-71.0751,42.3845,19,2019
+D32054,The Overlook at St. Gabriel's,-71.1455,42.3468,19,2020
+D32055,Boylston St at Dartmouth St,-71.0772,42.3501,0,2013
+D32057,Clinton St at North St,-71.0552,42.3607,18,2021
+E32001,Curtis Hall - South St at Centre St,-71.1154,42.3091,15,2013
+E32002,NA,-71.1141,42.3132,15,pre-2017
+E32003,Hyde Square - Barbara St at Centre St,-71.1098,42.3218,15,2013
+E32004,Egleston Square - Atherton St at Washington St,-71.0986,42.3157,15,2013
+E32005,Green Street T Stop - Green St at Amory St,-71.1073,42.3106,23,2013
+E32006,Jackson Square T Stop,-71.1001,42.3229,19,2013
+E32007,S Huntington Ave at Heath St,-71.1109,42.3276,15,2015
+E32008,Centre St at Seaverns Ave,-71.1143,42.3121,15,2018
+E32009,Shawmut T Stop,-71.0657,42.2929,19,2019
+E32010,Forest Hills,-71.1142,42.3009,40,2019
+E32011,The Dimock Center,-71.0964,42.3193,16,2019
+E32012,Martha Eliot Health Center,-71.102,42.3242,16,2020
+E32013,Hyde Park Library,-71.1225,42.2568,15,2021
+H32001,Cary Square,-71.0307,42.3981,12,2021
+H32002,Bellingham Square,-71.0334,42.3932,11,2021
+H32003,Chelsea Square,-71.0386,42.3902,11,2021
+H32004,Broadway at Gerrish Ave,-71.0309,42.3945,11,2021
+H32005,Chelsea Station,-71.0399,42.3964,11,2021
+H32006,855 Broadway,-71.0239,42.3984,11,2021
+K32001,Coolidge Corner - Beacon St at Centre St,-71.1233,42.3416,19,2012
+K32002,Beacon St at Tappan St,-71.1389,42.3383,15,2012
+K32003,Brookline Village - Station Street at MBTA,-71.1163,42.3327,19,2012
+K32004,JFK Crossing at Harvard St. / Thorndike St.,-71.1283,42.3466,15,2013
+K32005,Brookline Town Hall,-71.1205,42.3338,15,2016
+K32006,Commonwealth Ave At Babcock St,-71.1213,42.3515,15,2017
+K32007,St Mary's,-71.1073,42.3462,15,2018
+K32008,Tappan St at Brookline Hills MBTA,-71.1282,42.333,15,2018
+K32009,Cypress St at Clark Playground,-71.1254,42.3278,15,2018
+K32010,High St at Cypress St,-71.1214,42.3246,15,2019
+K32011,Washington St at Griggs Rd,-71.1342,42.3399,15,2019
+K32012,Marion St at Harvard St,-71.1207,42.3401,15,2019
+K32015,1200 Beacon St,-71.1147,42.3441,15,2021
+K32017,Harvard St and Stedman St,-71.1249,42.3444,15,2021
+L32001,Railroad Lot and Minuteman Bikeway,-71.1534,42.4161,11,2020
+L32002,Linwood St at Minuteman Bikeway,-71.1491,42.4094,11,2020
+L32003,Mass Ave at Grafton St,-71.1438,42.4073,0,2020
+L32004,Broadway at Grafton St,-71.1401,42.4099,0,2020
+L32005,Thorndike Field at Minuteman Bikeway,-71.1446,42.4002,11,2020
+L32006,Mass Ave at Broadway,-71.1505,42.4142,0,2021
+M32001,Lechmere Station at Cambridge St / First St,-71.0765,42.3707,19,2012
+M32002,One Kendall Square at Hampshire St / Portland St,-71.0917,42.3663,19,2012
+M32003,One Broadway / Kendall Sq at Main St / 3rd St,-71.0831,42.3622,23,2012
+M32004,Kendall T,-71.085,42.3624,23,2016
+M32005,MIT Stata Center at Vassar St / Main St,-71.0912,42.3621,35,2012
+M32006,MIT at Mass Ave / Amherst St,-71.0932,42.3581,27,2012
+M32007,Cambridge St - at Columbia St / Webster Ave,-71.0944,42.373,15,2012
+M32009,Lafayette Square at Mass Ave / Main St / Columbia St,-71.1006,42.3635,15,2012
+M32010,NA,-71.1014,42.374,19,pre-2017
+M32011,Central Square at Mass Ave / Essex St,-71.1031,42.3651,19,2012
+M32012,Central Sq Post Office / Cambridge City Hall at Mass Ave / Pleasant St,-71.1055,42.3664,17,2012
+M32013,Cambridge Main Library at Broadway / Trowbridge St,-71.1111,42.3734,19,2012
+M32014,Harvard University Housing - 115 Putnam Ave at Peabody Terrace,-71.1142,42.3666,15,2012
+M32016,Harvard Kennedy School at Bennett St / Eliot St,-71.1219,42.3722,23,2012
+M32017,Harvard Square at Brattle St / Eliot St,-71.1194,42.3743,15,2012
+M32018,Harvard Square at Mass Ave/ Dunster,-71.1186,42.3733,19,2012
+M32019,CambridgeSide Galleria - CambridgeSide PL at Land Blvd,-71.0765,42.367,15,2012
+M32020,Harvard Law School at Mass Ave / Jarvis St,-71.1199,42.379,19,2012
+M32021,Harvard University Gund Hall at Quincy St / Kirkland St,-71.114,42.3764,15,2013
+M32022,Lower Cambridgeport at Magazine St / Riverside Rd,-71.1139,42.3572,19,2012
+M32023,Harvard University / SEAS Cruft-Pierce Halls at 29 Oxford St,-71.1169,42.3779,17,2012
+M32024,Harvard University Radcliffe Quadrangle at Shepard St / Garden St,-71.1251,42.3803,19,2012
+M32025,Linear Park - Mass. Ave. at Cameron Ave.,-71.1305,42.3978,19,2013
+M32026,359 Broadway - Broadway at Fayette Street,-71.1044,42.3708,23,2013
+M32027,Binney St / Sixth St,-71.0863,42.3661,19,2013
+M32029,Porter Square Station,-71.1191,42.388,19,2013
+M32030,Dana Park,-71.1081,42.3618,19,2014
+M32031,Danehy Park,-71.1328,42.389,17,2014
+M32032,Kendall Street,-71.0822,42.3636,15,2014
+M32033,Alewife Station at Russell Field,-71.1395,42.3961,23,2014
+M32034,EF - North Point Park,-71.07,42.3699,23,2014
+M32035,Rogers St & Land Blvd,-71.0765,42.3664,19,2018
+M32036,Rindge Avenue - O'Neill Library,-71.129,42.3928,19,2014
+M32037,Ames St at Main St,-71.0882,42.3625,19,2012
+M32038,Harvard University River Houses at DeWolfe St / Cowperthwaite St,-71.1171,42.3692,21,2012
+M32039,Lesley University,-71.119,42.3867,15,2015
+M32040,University Park,-71.1001,42.3626,19,2015
+M32041,MIT Pacific St at Purrington St,-71.1013,42.3596,19,2015
+M32042,MIT Vassar St,-71.1039,42.3556,25,2015
+M32043,Mt Auburn,-71.1332,42.3748,19,2015
+M32044,Huron Ave At Vassal Lane,-71.1343,42.3817,19,2017
+M32045,Museum of Science,-71.0712,42.3677,19,2017
+M32046,Alewife MBTA at Steel Place,-71.1426,42.3956,23,2016
+M32047,Sidney Research Campus/Erie Street at Waverly,-71.1039,42.3578,19,2016
+M32048,Third at Binney,-71.0828,42.3654,15,2016
+M32049,Child St at North St,-71.0738,42.3723,23,2016
+M32050,Verizon Innovation Hub 10 Ware Street,-71.1131,42.3725,19,2017
+M32051,Fresh Pond Reservation,-71.1435,42.3827,17,2017
+M32052,Cambridge Dept. of Public Works -147 Hampshire St.,-71.0976,42.3712,19,2017
+M32053,One Memorial Drive,-71.0804,42.3616,19,2017
+M32054,699 Mt Auburn St,-71.1487,42.375,25,2018
+M32055,Harvard St at Greene-Rose Heritage Park,-71.0952,42.366,19,2018
+M32056,Mass Ave at Hadley/Walden,-71.1226,42.3912,19,2018
+M32057,Vassal Lane at Tobin/VLUS,-71.1378,42.3854,19,2018
+M32058,84 Cambridgepark Dr,-71.1439,42.3936,25,2018
+M32059,Ames St at Broadway,-71.0876,42.3637,19,2018
+M32060,700 Huron Ave,-71.1541,42.3808,19,2018
+M32061,Mass Ave at Albany St,-71.0967,42.3614,18,2019
+M32062,Inman Square at Springfield St.,-71.1003,42.3743,25,2019
+M32063,Sennott Park Broadway at Norfolk Street,-71.0993,42.3686,19,2019
+M32064,75 Binney St,-71.0801,42.3655,19,2019
+M32065,Kennedy-Longfellow School 158 Spring St,-71.0858,42.3696,19,2019
+M32066,Discovery Park - 30 Acorn Park Drive,-71.148,42.3979,23,2019
+M32067,Berkshire Street at Cambridge Street,-71.09,42.3721,19,2019
+M32068,Graham and Parks School ? Linnaean St at Walker St,-71.1245,42.3829,19,2020
+M32069,Smith Pl at Wilson Rd,-71.1506,42.3924,19,2020
+M32070,MIT Carleton St at Amherst St,-71.0867,42.3605,27,2020
+M32071,MIT Hayward St at Amherst St,-71.0855,42.3609,27,2020
+M32072,Galileo Galilei Way at Main Street,-71.0897,42.363,19,2020
+M32073,955 Mass Ave,-71.11,42.369,19,2021
+M32074,Concord Ave at Spinelli Place,-71.1539,42.3907,19,2021
+M32075,Danehy Park at New Street,-71.139,42.3895,19,2021
+M32076,Old Morse Park at Putnam Ave,-71.1084,42.3577,15,2021
+M32077,Cambridge Crossing at North First Street,-71.0762,42.3711,23,2021
+N32000,Centre St at Washington St,-71.1864,42.3557,11,2020
+N32001,Washington St at Crafts St,-71.1994,42.3539,11,2020
+N32002,Nonantum Library,-71.2015,42.3607,15,2020
+N32003,Bacon St at Washington St,-71.186,42.3571,11,2020
+N32004,Union St at Herrick Rd ? Newton Centre Green Line,-71.1937,42.3296,11,2020
+N32005,West Newton,-71.2263,42.3496,15,2020
+N32006,West Newton Armory,-71.22,42.3495,11,2020
+N32008,Langley Lot,-71.1929,42.3305,11,2020
+N32009,Boston College T,-71.1671,42.3399,17,2021
+N32010,Newton Highlands T,-71.2064,42.3221,15,2021
+N32011,California at Chapel,-71.2024,42.3651,12,2021
+N32012,Beacon at Walnut,-71.2067,42.3301,15,2021
+N32013,Newton Library,-71.2078,42.3362,13,2021
+N32014,Washington St at Walnut St,-71.2076,42.3515,11,2021
+N32015,Auburndale,-71.2478,42.3481,15,2021
+R32001,Sumner St at Shirley Ave,-70.998,42.4083,11,2021
+R32002,Orr Sq (Shirley Ave),-70.9927,42.4072,11,2021
+R32006,Revere City Hall,-71.0139,42.4074,11,2020
+R32007,Revere Public Library,-71.0089,42.4081,11,2020
+S32001,Somerville City Hall,-71.0981,42.3868,19,2012
+S32002,Union Square - Somerville,-71.0953,42.3796,19,2012
+S32003,Beacon St at Washington / Kirkland,-71.1057,42.3784,19,2012
+S32004,Conway Park - Somerville Avenue,-71.1085,42.3836,23,2012
+S32005,Wilson Square,-71.1141,42.3857,15,2012
+S32006,Davis Square,-71.123,42.397,25,2012
+S32007,Ball Sq,-71.1078,42.3984,19,2012
+S32008,Powder House Circle - Nathan Tufts Park,-71.1168,42.4009,15,2012
+S32009,Packard Ave at Powderhouse Blvd,-71.1234,42.4045,15,2013
+S32010,Clarendon Hill at Broadway,-71.1324,42.4063,15,2013
+S32011,Teele Square,-71.1267,42.4023,15,2013
+S32013,Magoun Square at Trum Field,-71.1059,42.3978,19,2014
+S32014,Broadway St at Mt Pleasant St,-71.0783,42.3861,19,2016
+S32015,Foss Park,-71.0904,42.3911,15,2018
+S32016,Broadway at Central St,-71.0985,42.3952,19,2018
+S32017,East Somerville Library (Broadway and Illinois),-71.0832,42.3876,15,2018
+S32018,Assembly Square T,-71.0775,42.3922,15,2018
+S32019,Grove St at Community Path,-71.1201,42.3964,15,2018
+S32020,Somerville Hospital,-71.1024,42.3968,15,2018
+S32021,Washington St at Myrtle St,-71.0873,42.381,15,2018
+S32022,Community Path at Cedar Street,-71.1113,42.3941,15,2018
+S32023,30 Dane St,-71.104,42.381,15,2018
+S32034,Perry Park,-71.1034,42.3793,19,2018
+S32035,191 Beacon St,-71.1088,42.3803,19,2018
+S32036,Somerville City Hall Annex,-71.0975,42.3919,15,2019
+S32037,Craigie at Summer St,-71.1081,42.3835,19,2019
+S32038,Edgerly Education Center,-71.0871,42.3872,15,2019
+S32039,Elm St at White St,-71.1169,42.3895,19,2019
+S32040,Community Path at Lowell St,-71.1056,42.3925,19,2020
+S32041,Union Square East,-71.0901,42.3801,19,2020
+S32047,Foley St at Grand Union Blvd,-71.0807,42.393,19,2021
+S32048,Somerville High School & Central Library,-71.096,42.3864,17,2021
+T32001,Salem Ferry Landing,-70.8807,42.5219,11,2021
+T32002,Salem Willows Park,-70.8702,42.5347,15,2021
+T32003,Shetland Park - Congress at Peabody St,-70.8895,42.5184,11,2021
+T32004,Mayor Salvo Path at Mill St,-70.8957,42.518,11,2021
+T32005,Salem MBTA - Washington at Federal St,-70.8961,42.5235,11,2021
+T32006,Lafayette at Leach St,-70.8918,42.5114,11,2021
+T32007,Salem State University - Bike Path at Loring Ave,-70.8948,42.5018,15,#N/A
+V32001,7 Acre Park,-71.0682,42.4114,15,2019
+V32002,NA,-71.0613,42.4041,15,pre-2017
+V32003,Everett Square (Broadway at Chelsea St),-71.0555,42.4073,14,2019
+V32004,Broadway at Lynde St,-71.0655,42.3965,15,2019
+V32005,Encore,-71.0724,42.3933,15,2019
+V32006,Glendale Square (Ferry St at Broadway),-71.0448,42.4143,15,2019
+V32007,Swan St. Park,-71.0584,42.4125,15,2019
+V32008,Broadway at Maple St,-71.0526,42.4103,14,2019
+V32009,Chelsea St at Vine St,-71.0476,42.4033,15,2019
+V32010,Wasgott Playground,-71.0638,42.4093,15,2019
+V32011,Broadway at Beacham St,-71.0637,42.3984,15,2019
+V32012,Hale Park,-71.0528,42.415,11,2020
+V32013,Kearins Playground,-71.0604,42.4062,11,2020
+W32001,Coolidge Sq.,-71.1568,42.3721,12,2020
+W32002,Watertown Sq,-71.1857,42.3653,15,2020
+W32004,Arsenal Yards,-71.1576,42.3628,11,2020
+W32005,Watertown Town Hall,-71.1879,42.3676,11,2020
+W32006,160 Arsenal,-71.1757,42.3647,11,2021
+W32007,Nichols Ave. at Watertown Greenway,-71.1566,42.3676,12,2021
+W32008,Charles River Greenway - California St. at Fifth Ave,-71.191,42.3646,11,2021

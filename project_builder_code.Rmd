@@ -1,0 +1,1256 @@
+---
+title: "Dataset Builder Code"
+author: "Timothy Fraser"
+date: "`r Sys.Date()`"
+output: html_notebook
+---
+
+This document is a replication code for processing bikeshare data and smoothing spatial data for usage in our study. Please see below for each step necessary to recreate these datasets.
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+library(tidyverse)
+
+dir.create("raw_data")
+```
+
+# 0. Download BlueBikes data
+
+```{r, eval = FALSE}
+# Get list of links for bike data
+mylinks <- expand_grid(
+  year = 2015:2021,
+  month = 01:12 %>% str_pad(width = 2, side = "left", pad = "0")) %>%
+  # Get the date object, assigning the date to the last day of the month
+  mutate(date = lubridate::ym(paste(year, month, sep = "-")) %>% 
+         lubridate::ceiling_date('month') - 1) %>% 
+  # clarify type
+  mutate(type = case_when(
+    date >= as.Date("2018-05-01") ~ "bluebikes",
+    TRUE ~ "hubway")) %>%
+  mutate(url = paste(
+    "https://s3.amazonaws.com/hubway-data/",
+    year, month, "-", type, "-tripdata.zip", sep = ""))
+
+# Make a folder to hold the zipfiles
+dir.create("zipfiles")
+
+# Download the zipfiles
+mylinks %>%
+  split(.$date) %>%
+  map(~download.file(
+    url = .$url, 
+    destfile = paste("zipfiles/", .$year, .$month, ".zip", sep = "")))
+
+# Make a folder to hold the csvs
+dir.create("raw_data")
+
+# Now unzip them all
+dir("zipfiles",full.names = TRUE) %>% 
+  map(~unzip(zipfile = ., exdir = "raw_data/"))
+
+# Delete zipfiles
+unlink("zipfiles", recursive = TRUE)
+
+# Download prior years
+download.file(
+  url = "https://s3.amazonaws.com/hubway-data/hubway_Trips_2011.csv",
+  destfile = "raw_data/201100-hubway-tripdata.csv")
+
+download.file(
+  url = "https://s3.amazonaws.com/hubway-data/hubway_Trips_2012.csv",
+  destfile = "raw_data/201200-hubway-tripdata.csv")
+
+download.file(
+  url = "https://s3.amazonaws.com/hubway-data/hubway_Trips_2013.csv",
+  destfile = "raw_data/201300-hubway-tripdata.csv")
+
+download.file(
+  url = "https://s3.amazonaws.com/hubway-data/hubway_Trips_2014_1.csv",
+  destfile = "raw_data/201401-hubway-tripdata.csv")
+
+download.file(
+  url = "https://s3.amazonaws.com/hubway-data/hubway_Trips_2014_2.csv",
+  destfile = "raw_data/201402-hubway-tripdata.csv")
+
+```
+
+
+# 1. Data Wrangling
+
+First, we're going to import a random sample of 100 rides from each year, so we can figure out the formatting appropriately.
+
+
+## Stations
+
+Goal: I want to get the latitude and longitude for every station
+I want to join those into the bike data so every bike has a latitude and longitude
+Because it doesn't actually matter which station they went to.
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+now <- read_csv("stations/current_bluebikes_stations.csv", 
+                skip = 1, name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_")) %>%
+  select(id = number, station = name, x = longitude, y = latitude, 
+         docks = total_docks, year = deployment_year) %>%
+  mutate(year = as.numeric(year)) %>%
+  mutate(year = if_else(station == "Salem State University - Bike Path at Loring Ave", 2021, year)) %>%
+  # Now create a row for every year since installation
+  group_by(id, station, x, y, docks) %>%
+  summarize(year = year:2021,
+            value = 1) %>%
+  ungroup()
+
+old <- read_csv("stations/Hubway_Stations_2011_2016.csv", 
+                name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_")) %>%
+  select(id = station_id, station = station, x = longitude, y = latitude, docks = `#_of_docks`) %>%
+  group_by(id, station, x, y, docks) %>%
+  summarize(year = 2011:2016,
+            value = 2) %>%
+  ungroup()
+
+mid <- read_csv("stations/Hubway_Stations_as_of_July_2017.csv",
+                name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_")) %>% 
+  select(id = number, station = name, x = longitude, y = latitude, docks = `total_docks`) %>%
+  mutate(year = 2017,
+         value = 2)
+
+# Bind into one dataframe
+bind_rows(now, old, mid) %>% 
+  # Grab just key variables
+  select(id, station, x, y, docks, year, value)  %>%
+  # Now for each id-year pair,
+  group_by(id, year) %>%
+  # Keep just the longitude and latitude values 
+  # from the 'highest' quality results, using our value ranking 
+  summarize(x = x[value == min(value, na.rm = TRUE)],
+            y = y[value == min(value, na.rm = TRUE)],
+            # Grab also the # of bike docks at that location
+            docks = docks[value == min(value, na.rm = TRUE)],
+            station = paste(unique(station), collapse = "; ")) %>%
+  ungroup() %>% 
+  # Let's save these.
+  # Theses coordinates represent the coordinates of each bluebikes station at each point in time.
+  saveRDS("processing/station_coordinates.rds")
+
+# Get rid of the rest
+remove(now, old, mid)
+```
+
+
+## Get places
+
+Let's get a list of all the unique id-place-coordinates that show up in our data.
+
+```{r, eval = FALSE, warning = FALSE, message=FALSE}
+
+# Write a quick function that will get us a sample of data 
+get_places = function(mydata, n = 20){
+  
+  if(n == FALSE){
+  # IF n is set to FALSE, then we'll import the entire dataset
+  mysample <- read_csv(
+    file = mydata,
+    name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_"))
+  }else{
+  # If n DOES NOT equal false, then we'll draw a sample of n cases (default is 20)
+  mysample <- read_csv(
+    file = mydata,
+    name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_")) %>%
+    sample_n(size = n, replace = FALSE)
+  }  
+  # Extract year and month
+  myid <- mydata %>% str_extract("[0-9]{6}") 
+  # Next, we'll transform values and variable names
+  mysample <- mysample %>%
+    mutate_all(list(~as.character(.))) %>%
+    # Now record the year
+    mutate(year = myid %>% str_sub(start = 1, end = 4) %>% as.numeric()) %>%
+    rename_with(.fn = ~ "start_name", any_of(c("start_station_name", "start_station"))) %>%
+    rename_with(.fn = ~ "end_name", any_of(c("end_station_name", "end_station")))  %>%
+    rename_with(.fn = ~ "start_id", any_of(c("start_station_number", "start_station_id"))) %>%
+    rename_with(.fn = ~ "end_id", any_of(c("end_station_number", "end_station_id")))  %>%
+    rename_with(.fn = ~ "end_lat", any_of(c("end_station_latitude")))  %>%
+    rename_with(.fn = ~ "start_lat", any_of(c("start_station_latitude")))  %>%
+    rename_with(.fn = ~ "end_lon", any_of(c("end_station_longitude")))  %>%
+    rename_with(.fn = ~ "start_lon", any_of(c("start_station_longitude")))  %>%
+    # Convert and round latitude and longitude, if present
+    mutate_at(vars(any_of(c("start_lat", "start_lon", "end_lat", "end_lon"))), 
+              list(~round(as.numeric(.), 4))) 
+  
+  bind_rows(
+    mysample %>%
+      select(any_of(c("id" = "start_id", "name" = "start_name", "lat" = "start_lat", "lon" = "start_lon"))),
+    mysample %>%
+      select(any_of(c("id" = "end_id", "name" = "end_name", "lat" = "end_lat", "lon" = "end_lon")))
+  ) %>%
+    distinct() %>%
+    saveRDS(paste("processing/places/", myid, ".rds", sep = ""))
+
+}
+
+
+library(tidyverse)
+library(future)
+library(furrr)
+library(lubridate)
+
+myworkers <- availableWorkers() %>% length() - 1
+
+plan(multisession, workers = myworkers)
+
+data.frame(file = dir("raw_data", full.names = TRUE)) %>%
+  split(.$file) %>%
+  furrr::future_map(~get_places(.$file, n = FALSE), .progress = TRUE) 
+
+plan(sequential)
+```
+
+Eventually, you got all the data EXCEPT consistent latitude and longtiude
+I need EITHER consistent IDs OR consistent latitude and longitude. I have.... neither.
+In particular, my IDs don't mean squat.
+So, I went and got all the real IDs, in the hopes of geolocating them.
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+
+merge_places= function(mydata){
+  mydata %>%
+    read_rds() %>%
+#    mutate(file = myfile,
+#           year = myfile %>% str_sub(1,4)) %>%
+    return()
+}
+
+
+dir("processing/places", full.names = TRUE) %>%
+  map(~merge_places(.)) %>%
+  bind_rows() %>%
+  distinct() %>%
+# THESE ARE ALL THE LOCATIONS.
+# IF YOU CAN JUST MAKE A SINGLE KEY, IT SHOULD WORK.
+  group_by(name) %>%
+  summarize(id = unique(id) %>% paste(collapse = "; "),
+            # For latitude and longitude, just grab the first that shows up;
+            # they all refer to pretty much the same place
+            lat = unique(na.omit(lat)) %>% .[1],
+            lon = unique(na.omit(lon)) %>% .[1]) %>%
+  ungroup() %>%
+  filter(id != "NA") %>%
+  # Now let's pivot back out again
+  separate(col = id, into = c("id1", "id2"), sep = "; ") %>%
+  pivot_longer(cols = c(id1, id2), names_to = "holder", values_to = "id") %>%
+  filter(!is.na(id)) %>% select(-holder) %>%
+  select(id, name, lat, lon) %>%
+  mutate_at(vars(lon, lat), list(~as.numeric(.))) %>%
+  mutate_at(vars(lon, lat), list(~if_else(. == 0, NA_real_, .))) %>%
+  saveRDS("processing/all_locations.rds")
+
+mypoints <- read_rds("processing/all_locations.rds")
+
+
+# Get a proper ID for them all. Something geocodable.
+# 19 of these places do not have longitude or latitude
+# 11 of them have real IDs, but those aren't run anymore.
+obs_points <- bind_rows(
+  mypoints %>% 
+    filter(is.na(lat)) %>%
+    select(-lat, -lon) %>%
+    # Join in coordinates for as many as possible
+    left_join(
+      by = "id", 
+      y = read_rds("processing/station_coordinates.rds") %>% select(id, lon = x, lat = y) %>% distinct()),
+  
+  mypoints %>% 
+    filter(is.na(lat)) %>%
+    select(-lat, -lon) %>%
+    # Join in coordinates for as many as possible
+    left_join(
+      by = "name", 
+      y = read_rds("processing/station_coordinates.rds") %>% select(name = station, lon = x, lat = y) %>% distinct()),
+  # Join in all points that aren't messed up  
+  mypoints %>% 
+    filter(!is.na(lat))
+) %>%
+  distinct() %>%
+  as_tibble() %>%
+  # Zoom into 823 places, out of 835 real places, which could be located
+  filter(!is.na(lat) & !is.na(lon)) %>%
+  # make into sf
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+# Make 300 meter buffers around
+myknown <- read_rds("processing/station_coordinates.rds") %>%
+  as_tibble() %>%
+  select(code = id, x, y) %>%
+  distinct() %>%
+  st_as_sf(coords = c("x", "y"), crs = 4326) 
+
+# Please take my observed points and join in the recent ID of the actual station
+obs_points %>%
+  st_join(myknown, join = st_nearest_feature, left = FALSE) %>%
+  as_tibble() %>%
+  saveRDS("processing/all_nearestlocated.rds")
+
+# Just got the IDs of all places.
+mykey <- read_rds("processing/all_nearestlocated.rds") %>%
+  select(id, code)
+
+# Now, instead of having all that extra stuff, 
+read_rds("processing/testbigdata.rds") %>% 
+  left_join(by = c("start_id" = "id"), 
+            y = mykey %>% select(id, start_code = code)) %>%
+  left_join(by = c("end_id" = "id"), 
+            y = mykey %>% select(id, end_code = code)) %>%
+  head()
+# Works perfectly!
+```
+
+
+
+## Test Run
+
+```{r, message=FALSE, warning = FALSE}
+# Write a quick function that will get us a sample of data 
+get_sample = function(mydata, n = 20){
+  
+  if(n == FALSE){
+    # IF n is set to FALSE, then we'll import the entire dataset
+    mysample <- read_csv(
+      file = mydata,
+      name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_"))
+  }else{
+    # If n DOES NOT equal false, then we'll draw a sample of n cases (default is 20)
+    mysample <- read_csv(
+      file = mydata,
+      name_repair = function(x)tolower(x) %>% str_replace_all(" ", "_")) %>%
+      sample_n(size = n, replace = FALSE)
+  }  
+  
+  myid <- mydata %>% str_extract("[0-9]{6}")
+  # Next, we'll transform values and variable names
+  mysample %>%
+    mutate_all(list(~as.character(.))) %>%
+    # Now record the year
+    mutate(year = myid %>% str_sub(start = 1, end = 4) %>% as.numeric()) %>%
+    # recode names to one standardized set
+    rename_with(.fn = ~"zipcode", .cols = any_of(c("zip_code", "postal_code")))  %>%
+    rename_with(~"duration", .cols = any_of(c("tripduration", "duration"))) %>%
+    rename_with(~"start_date", .cols = any_of(c("start_date", "starttime"))) %>%
+    rename_with(~"end_date", .cols = any_of(c("end_date", "endtime", "stoptime"))) %>%
+    rename_with(.fn = ~ "start_name", any_of(c("start_station_name", "start_station"))) %>%
+    rename_with(.fn = ~ "end_name", any_of(c("end_station_name", "end_station")))  %>%
+    rename_with(.fn = ~ "start_id", any_of(c("start_station_number", "start_station_id"))) %>%
+    rename_with(.fn = ~ "end_id", any_of(c("end_station_number", "end_station_id")))  %>%
+    rename_with(.fn = ~ "bikeid", any_of(c("bike_id", "bike_number")))  %>%
+    rename_with(.fn = ~ "usertype", any_of(c("usertype", "membertype", "member_type")))  %>%
+    rename_with(.fn = ~ "end_lat", any_of(c("end_station_latitude")))  %>%
+    rename_with(.fn = ~ "start_lat", any_of(c("start_station_latitude")))  %>%
+    rename_with(.fn = ~ "end_lon", any_of(c("end_station_longitude")))  %>%
+    rename_with(.fn = ~ "start_lon", any_of(c("start_station_longitude")))  %>%
+    
+    mutate_at(vars(any_of(contains("date"))),
+              list(~lubridate::parse_date_time(x = ., orders = c("Ymd_HMS", "mdY_HM")) %>% as.character())) %>%
+    # Convert and round latitude and longitude, if present
+    mutate_at(vars(any_of(c("start_lat", "start_lon", "end_lat", "end_lon"))), 
+              list(~round(as.numeric(.), 4))) %>%
+    # Pad zipcodes to 5 digits, if it has the zipcode variable
+    mutate_at(vars(one_of(c("zipcode"))), 
+              list(~str_pad(., width = 5, side = "left", pad = "0"))) %>%
+    mutate_at(vars(one_of(c("usertype"))), list(~tolower(.))) %>%
+    mutate_at(vars(one_of(c("gender"))), 
+              list(~tolower(.) %>% dplyr::recode(
+                .missing = "unknown",
+                "0" = "unknown",
+                "male" = "man",
+                "female" = "woman",
+                "1" = "man",
+                "2" = "woman"))) %>%
+    # Then, update the key using a consistent code
+    # for source
+    left_join(by = c("start_id" = "id"), 
+              y = mykey %>% select(id, start_code = code)) %>%
+    # and destination
+    left_join(by = c("end_id" = "id"), 
+              y = mykey %>% select(id, end_code = code)) %>%
+    # And then keep just the main variables at the end.
+    select(any_of(c("year", "bikeid", "duration", 
+                    "start_date", "start_code",
+                    "end_date", "end_code", 
+                    "usertype", "gender", "birth_year", "zipcode"))) %>%
+    # Finally, save to file, for efficiency
+    saveRDS(paste("processing/rides/", myid, ".rds", sep = ""))
+    
+}
+
+
+library(tidyverse)
+library(future)
+library(furrr)
+library(lubridate)
+
+myworkers <- availableWorkers() %>% length() - 1
+
+plan(multisession, workers = myworkers)
+
+# Just got the IDs of all places.
+mykey <- read_rds("processing/all_nearestlocated.rds") %>%
+  select(id, code)
+
+data.frame(file = dir("raw_data", full.names = TRUE)) %>%
+  split(.$file) %>%
+  furrr::future_map(~get_sample(.$file, n = FALSE), .progress = TRUE)
+
+plan(sequential)
+
+#  bind_rows() %>%
+#  saveRDS("processing/testbigdata.rds")
+
+#read_rds("processing/rides/201100.rds") %>% head()
+
+rm(list = ls())
+
+```
+
+## Finalize Stations
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+
+read_rds("processing/all_nearestlocated.rds") %>%
+  select(name, code, geometry) %>%
+  bind_cols(st_coordinates(.$geometry) %>% as_tibble()) %>%
+  group_by(code) %>%
+  summarize(lon = unique(X)[1],
+            lat = unique(Y)[1],
+            name = name[1]) %>%
+  saveRDS("processing/stations_in_study.rds")
+
+```
+
+## Establish Buffer Zone
+
+Let's confirm which Bluebikes stations we want to include in our analysis. We're going to use all within a 15 km radius of the centroid of Suffolk County, which excludes the Salem ones and one station far to the south of Boston.
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+mypoints <- read_rds("processing/stations_in_study.rds") %>% 
+  select(code, lon, lat) %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+mybounds <- tigris::counties(state = "MA",  cb = TRUE, year = 2019) %>%
+  st_as_sf(crs = 4326) %>%
+  st_transform(crs = 4326) %>%
+  select(geoid = GEOID, name = NAME, geometry) 
+
+mybuffer <- mybounds %>%
+  filter(name == "Suffolk") %>%
+  summarize(geometry = st_centroid(geometry)) %>%
+  st_buffer(dist = 15000)
+
+mybox <- st_bbox(mybuffer)
+
+ggplot() +
+  geom_sf(data = mybounds) +
+  geom_sf(data = mypoints, color = "red") +
+  geom_sf(data = mybuffer, alpha = 0.2, color = "pink") +
+  coord_sf(xlim = c(mybox["xmin"], mybox["xmax"]),
+           ylim = c(mybox["ymin"], mybox["ymax"]))
+
+
+
+mypoints %>%
+  select(code, geometry) %>%
+  # Keep just the points that fit within the buffer
+  st_join(mybuffer %>% select(geometry), left = FALSE) %>%
+  st_join(mybounds %>% select(geoid, geometry), left = FALSE) %>%
+  as_tibble() %>%
+  select(code, geoid) %>%
+  saveRDS("processing/code_geoid.rds")
+
+rm(list = ls())  
+```
+
+# 2. Make SQL database
+
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+library(tidyverse)
+library(RSQLite)
+library(DBI)
+
+# Ma
+
+myfiles <- dir("processing/rides", full.names = TRUE, pattern = ".rds")
+```
+
+```{r, eval = FALSE}
+dbDisconnect(mydat)
+unlink("bluebikes.sqlite")
+```
+
+```{r, message=FALSE, warning = FALSE, eval = FALSE}
+# Initialize a new SQLite dataset
+mydat <- dbConnect(RSQLite::SQLite(), "bluebikes.sqlite")
+
+# As an example
+#first <- read_rds("processing/rides/201100.rds") %>%
+#  head(1)
+
+first <- tibble(
+  year = NA_real_,
+  bikeid = NA_character_,
+  duration = NA_character_,
+  start_date = NA_character_,
+  start_code = NA_character_,
+  end_date = NA_character_,
+  end_code = NA_character_,
+  usertype = NA_character_,
+  gender = NA_character_,
+  birth_year = NA_character_,
+  zipcode = NA_character_)
+
+# initialize it with fake data
+mydat %>% dbWriteTable(
+  name = "trips",
+  value = first,
+  append = TRUE)
+
+for(i in seq_along(myfiles)){
+  
+  str_extract(myfiles[i], "[0-9]{6}") %>% print()
+  
+  mydat %>%
+    dbWriteTable(
+      name = 'trips',
+      value = read_rds(
+        myfiles[1]) %>%
+        as_tibble(),
+      append = TRUE)
+}
+
+
+#https://inbo.github.io/tutorials/tutorials/r_large_data_files_handling/
+tbl(mydat, 'trips') %>%
+  head()
+#https://inbo.github.io/tutorials/tutorials/r_large_data_files_handling/
+tbl(mydat, 'trips') %>%
+  group_by(start_code) %>%
+  count() %>%
+  collect()
+
+tbl(mydat, 'trips')
+
+dbDisconnect(mydat)
+```
+
+
+
+
+# 3. Analysis Ideas
+
+## Get Latitude and Longitude for any Station
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+mydat <- dbConnect(RSQLite::SQLite(), "bluebikes.sqlite")
+
+# Here are the codes of the stations we were able to get data for
+mycodes <- bind_rows(
+  tbl(mydat, 'trips') %>%
+    select(year, code = start_code) %>%
+    distinct() %>%
+    collect(),
+  tbl(mydat, 'trips') %>%
+    select(year, code = end_code) %>%
+    distinct() %>%
+    collect()) %>%
+  distinct()
+
+mycodes %>% 
+  left_join(by = "code", y=  read_rds("processing/stations_in_study.rds"))
+
+dbDisconnect(mydat)
+```
+
+## Block Groups
+
+```{r apikey, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(tidycensus)
+library(censusapi)
+# Load your Census API key here
+census_api_key(key = "5e33463051bc6a5e05db5a76784747d680a65df4")
+mykey <- "5e33463051bc6a5e05db5a76784747d680a65df4"
+```
+
+### Download Data
+
+```{r, message=FALSE, warning = FALSE}
+#myvars <- read_csv("raw_data/census_2020/variables.csv")
+bgdata <- bind_rows(
+  getCensus(
+  name = "dec/pl",
+  vintage = 2020,
+  key = mykey, 
+  vars = c("P2_001N", # = "pop",
+           "P2_002N", # = "pop_hisplat",
+           #"P1_002N", #= "pop",
+           "P1_003N", #= "pop_white",
+           "P1_004N", #= "pop_black",
+           "P1_005N", #= "pop_natam",
+           "P1_006N", #= "pop_asian"
+           "H1_001N", #= "units",
+           "H1_002N"), #= "units_occupied"))),
+  region = "block group:*",
+  regionin = "state:25&county:*") %>%
+  pivot_longer(cols = -c(state, county, tract, block_group), 
+               names_to ="var", values_to = "value") %>%
+    mutate(year = 2020),
+
+getCensus(
+  name = "acs/acs5",
+  vintage = 2019,
+  key = mykey, 
+  vars = c(
+    # Total Population
+    "B01003_001E", 
+    # Age
+    "B01001_020E", "B01001_021E",
+    "B01001_022E", "B01001_023E",
+    "B01001_024E", "B01001_025E",
+    "B01001_044E", "B01001_045E",
+    "B01001_046E", "B01001_047E",
+    "B01001_048E", "B01001_049E",
+    "B01001_026E", # Gender
+    # Socioeconomics
+    #"B06009_004E", # pop_some_college
+    #"B20004_004E", #"pop_some_college2",
+    #"B07009_004E", # pop_some_college
+    "B28006_008E", # pop_some_college,
+    # FAMILY INCOME IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS)
+    "B19101_001E", #"pop_income",	#Estimate!!Total:	
+    "B19101_002E", #"pop_under_10000",	#Estimate!!Total:!!Less than $10,000	
+    "B19101_003E", #"pop_10000_14999",	#Estimate!!Total:!!$10,000 to $14,999	
+    "B19101_004E", #"pop_15000_19999",	#Estimate!!Total:!!$15,000 to $19,999	
+    "B19101_005E", #"pop_20000_24999",	#Estimate!!Total:!!$20,000 to $24,999	
+    "B19101_006E", #"pop_25000_29999",	#Estimate!!Total:!!$25,000 to $29,999	
+    "B19101_007E", #"pop_30000_34999",	#Estimate!!Total:!!$30,000 to $34,999	
+    "B19101_008E", #"pop_35000_39999",	#Estimate!!Total:!!$35,000 to $39,999	
+    "B19101_009E", #"pop_40000_44999",	#Estimate!!Total:!!$40,000 to $44,999	
+    "B19101_010E", #"pop_45000_49999",	#Estimate!!Total:!!$45,000 to $49,999
+    "B19101_011E", #"pop_50000_59999",	#Estimate!!Total:!!$50,000 to $59,999	
+    "B19101_012E", #"pop_60000_74999",	#Estimate!!Total:!!$60,000 to $74,999	
+    "B19101_013E", #"pop_75000_99999",	#Estimate!!Total:!!$75,000 to $99,999	
+    "B19101_014E", #"pop_100000_124999",	#Estimate!!Total:!!$100,000 to $124,999	
+    "B19101_015E", #"pop_125000_149999",	#Estimate!!Total:!!$125,000 to $149,999	
+    "B19101_016E", #"pop_150000_199999",	#Estimate!!Total:!!$150,000 to $199,999	
+    "B19101_017E", #"pop_200000_plus",	#Estimate!!Total:!!$200,000 or more
+    
+    # Employment
+    "B23025_003E", "B23025_004E"),
+   region = "block group:*",
+  regionin = "state:25&county:*") %>% # &county:025
+  pivot_longer(cols = -c(state, county, tract, block_group), 
+               names_to ="var", values_to = "value") %>%
+  mutate(year = 2019)
+) %>%
+  
+  # Recode names  
+  mutate(var = var %>% recode_factor(
+    # 2020 variables
+    "P2_001N"  = "pop",
+    "P2_002N"  = "pop_hisplat",
+    #"P1_002N" = "pop",
+    "P1_003N" = "pop_white",
+    "P1_004N" = "pop_black",
+    "P1_005N" = "pop_natam",
+    "P1_006N" = "pop_asian",
+    "H1_001N" = "units",
+    "H1_002N" = "units_occupied",
+
+    # 2019 variables
+    "B01003_001E" = "pop", # Total Population
+    # Age
+    "B01001_020E" = "pop_age_65_66_male",
+    "B01001_021E" = "pop_age_67_69_male",
+    "B01001_022E" = "pop_age_70_74_male",
+    "B01001_023E" = "pop_age_75_79_male",
+    "B01001_024E" = "pop_age_80_84_male",
+    "B01001_025E" = "pop_age_85_over_male",
+    
+    "B01001_044E" = "pop_age_65_66_female",
+    "B01001_045E" = "pop_age_67_69_female",
+    "B01001_046E" = "pop_age_70_74_female",
+    "B01001_047E" = "pop_age_75_79_female",
+    "B01001_048E" = "pop_age_80_84_female",
+    "B01001_049E" = "pop_age_85_over_female",
+    
+    "B01001_026E" = "pop_women", # Gender
+   
+    #"EDUCATIONAL ATTAINMENT FOR THE POPULATION 25 YEARS AND OVER"
+    #"B06009_004E" = "pop_some_college",
+    #"B20004_004E" = "pop_some_college2",
+    #"B07009_004E" = "pop_some_college",
+    "B28006_008E" = "pop_some_college",
+    
+    # FAMILY INCOME IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS)
+    "B19101_001E" = "pop_income",	#Estimate!!Total:	
+    "B19101_002E" = "pop_under_10000",	#Estimate!!Total:!!Less than $10,000	
+    "B19101_003E" = "pop_10000_14999",	#Estimate!!Total:!!$10,000 to $14,999	
+    "B19101_004E" = "pop_15000_19999",	#Estimate!!Total:!!$15,000 to $19,999	
+    "B19101_005E" = "pop_20000_24999",	#Estimate!!Total:!!$20,000 to $24,999	
+    "B19101_006E" = "pop_25000_29999",	#Estimate!!Total:!!$25,000 to $29,999	
+    "B19101_007E" = "pop_30000_34999",	#Estimate!!Total:!!$30,000 to $34,999	
+    "B19101_008E" = "pop_35000_39999",	#Estimate!!Total:!!$35,000 to $39,999	
+    "B19101_009E" = "pop_40000_44999",	#Estimate!!Total:!!$40,000 to $44,999	
+    "B19101_010E" = "pop_45000_49999",	#Estimate!!Total:!!$45,000 to $49,999
+    "B19101_011E" = "pop_50000_59999",	#Estimate!!Total:!!$50,000 to $59,999	
+    "B19101_012E" = "pop_60000_74999",	#Estimate!!Total:!!$60,000 to $74,999	
+    "B19101_013E" = "pop_75000_99999",	#Estimate!!Total:!!$75,000 to $99,999	
+    "B19101_014E" = "pop_100000_124999",	#Estimate!!Total:!!$100,000 to $124,999	
+    "B19101_015E" = "pop_125000_149999",	#Estimate!!Total:!!$125,000 to $149,999	
+    "B19101_016E" = "pop_150000_199999",	#Estimate!!Total:!!$150,000 to $199,999	
+    "B19101_017E" = "pop_200000_plus",	#Estimate!!Total:!!$200,000 or more
+    
+    "B23025_003E" = "pop_labor_force", # Estimate!!Total!!In labor force!!Civilian labor force
+    "B23025_004E" = "pop_employed" #Estimate!!Total!!In labor f orce!!Civilian labor force!!Employed
+ )) %>%
+  mutate(geoid = paste(state, county, tract, block_group, sep = "")) %>%
+  select(year, geoid, var, value) %>%
+  pivot_wider(id_cols = c(geoid), names_from = c(var, year), values_from = value) %>%
+  
+  
+  mutate(pop_hisplat_2020 = pop_hisplat_2020 / pop_2020,
+         pop_white_2020 = pop_white_2020 / pop_2020,
+         pop_black_2020 = pop_black_2020 / pop_2020,
+         pop_natam_2020 = pop_natam_2020 / pop_2020,
+         pop_asian_2020 = pop_asian_2020 / pop_2020,
+         pop_women_2019 = pop_women_2019 / pop_2019,
+         pop_over_65_2019 = (pop_age_65_66_male_2019 + pop_age_67_69_male_2019 +
+                               pop_age_70_74_male_2019 + pop_age_75_79_male_2019 +
+                               pop_age_80_84_male_2019 + pop_age_85_over_male_2019 +
+                               pop_age_65_66_female_2019 + pop_age_67_69_female_2019 +
+                               pop_age_70_74_female_2019 + pop_age_75_79_female_2019 +
+                               pop_age_80_84_female_2019 + pop_age_85_over_female_2019) / pop_2019,
+         # NOTE: ORDINARILY, we would calculate unemployed population relative to population in labor force.
+         # But in our survey, we just asked if they were employed - 
+         # so it's not clear who was in the labor force and who was not. 
+         # As a result, it's important to use the full population.
+         pop_employed_2019 = pop_employed_2019 / pop_2019,
+         pop_0_40000_2019 = (pop_under_10000_2019 + pop_10000_14999_2019 +
+                               pop_15000_19999_2019 + pop_20000_24999_2019 +
+                               pop_25000_29999_2019 + pop_30000_34999_2019 + 
+                               pop_35000_39999_2019) / pop_income_2019,
+         pop_40001_60000_2019 = (pop_40000_44999_2019 + pop_45000_49999_2019 + 
+                                   pop_50000_59999_2019) / pop_income_2019,
+         pop_60001_100000_2019 = (pop_60000_74999_2019 + pop_75000_99999_2019) / pop_income_2019,
+         pop_100000_plus_2019 = (pop_100000_124999_2019 + pop_125000_149999_2019 + 
+                                   pop_150000_199999_2019 + pop_200000_plus_2019) / pop_income_2019,
+         pop_some_college = pop_some_college_2019 / pop_2019) %>%
+  # arrange nicely
+  select(geoid, pop_2020, pop_hisplat_2020, pop_white_2020,
+         pop_black_2020, pop_natam_2020, pop_asian_2020, pop_women_2019, pop_over_65_2019,
+         pop_employed_2019, pop_some_college,
+         pop_0_40000_2019, pop_40001_60000_2019, pop_60001_100000_2019, pop_100000_plus_2019) %>%
+  
+  # Create and filter county variable to just block groups in three counties
+  mutate(county = str_sub(geoid, 1, 5)) %>%
+  filter(county %in% c("25025", "25021", "25017")) %>%
+  select(-county)%>%
+
+  saveRDS("processing/bgdata.rds")
+```
+
+### Build Spatial Dataset
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+tigris::block_groups(state = "MA",  cb = TRUE, year = 2019) %>%
+  st_as_sf(crs = 4326) %>%
+  select(geoid = GEOID, area = ALAND, geometry) %>%
+  # Is the land area positive?
+  filter(area > 0) %>%
+  # Let's calculate area in km squared
+  mutate(area = area / 1e6) %>%
+  # Join in data
+  left_join(by = "geoid", y = read_rds("processing/bgdata.rds")) %>%
+  # Let's calculate population density
+  mutate(pop_density_2020 = pop_2020 / area)  %>%
+  
+    
+  # Create and filter county variable to just block groups in three counties
+  mutate(county = str_sub(geoid, 1, 5)) %>%
+  filter(county %in% c("25025", "25021", "25017")) %>%
+  select(-county)%>%
+
+  saveRDS("processing/bg.rds")
+
+
+```
+
+
+### Spatial Smoothing
+
+```{r, message = FALSE, warning = FALSE}
+mybg <- read_rds("processing/bg.rds") 
+
+library(gstat)
+library(tidyverse)
+
+# Let's write a quick code to make imputed measures
+get_imp = function(myvar, myn){
+  print(myvar)
+  
+  gs <- gstat(formula = x ~ 1, 
+              locations = mybg %>% select(geoid, x = myvar, geometry) %>% na.omit(), 
+              nmax = myn, set = list(idp = 0))
+  
+  predict(gs, mybg %>% select(geoid, geometry)) %>%
+    as_tibble() %>%
+    # Add unique identifier
+    mutate(geoid = mybg$geoid) %>%
+    select(geoid, value = var1.pred) %>%
+    return()
+}
+
+
+out <- data.frame(variable = c("pop_density_2020", "pop_hisplat_2020", "pop_white_2020", 
+  "pop_black_2020", "pop_natam_2020", "pop_asian_2020",
+  "pop_women_2019", "pop_over_65_2019", "pop_employed_2019", "pop_some_college",
+  "pop_0_40000_2019", "pop_40001_60000_2019", "pop_60001_100000_2019", "pop_100000_plus_2019")) %>%
+  split(.$variable) %>%
+  map_dfr(~get_imp(.$variable, myn = 10), .id = "variable")
+
+
+mybg %>% 
+  left_join(by = "geoid", 
+            y = out %>%
+  pivot_wider(id_cols = c(geoid), names_from = variable, values_from = value) %>%
+    magrittr::set_colnames(value = c("geoid", paste(names(.)[-1], "_smooth", sep ="")))) %>%
+  select(geoid, area, names(.)[-c(1:2)] %>% sort()) %>%
+  saveRDS("processing/bgdata_imp10.rds")
+
+#read_rds("processing/bgdata_imp10.rds") %>%
+#  select(contains("smooth")) %>%
+#  as_tibble() %>%
+#  summarize(cor = cor(pop_density_2020, pop_density_2020_smooth, use = "pairwise.complete.obs"))
+#
+out <- data.frame(variable = c("pop_density_2020", "pop_hisplat_2020", "pop_white_2020", 
+  "pop_black_2020", "pop_natam_2020", "pop_asian_2020",
+  "pop_women_2019", "pop_over_65_2019", "pop_employed_2019", "pop_some_college",
+  "pop_0_40000_2019", "pop_40001_60000_2019", "pop_60001_100000_2019", "pop_100000_plus_2019")) %>%
+  split(.$variable) %>%
+  map_dfr(~get_imp(.$variable, myn = 5), .id = "variable")
+
+mybg %>% 
+  left_join(by = "geoid", 
+            y = out %>%
+  pivot_wider(id_cols = c(geoid), names_from = variable, values_from = value) %>%
+    magrittr::set_colnames(value = c("geoid", paste(names(.)[-1], "_smooth", sep ="")))) %>%
+  select(geoid, area, names(.)[-c(1:2)] %>% sort()) %>%
+  saveRDS("processing/bgdata_imp5.rds")
+
+
+read_rds("processing/bgdata_imp5.rds") %>%
+  as_tibble() %>%
+  summarize(cor = cor(pop_density_2020, pop_density_2020_smooth, use = "pairwise.complete.obs"))
+
+read_rds("processing/bgdata_imp5.rds") %>%
+  select(contains("smooth")) %>%
+  summary()
+```
+
+
+### Finalize
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+library(sf)
+library(tidyverse)
+
+
+mypoints <- read_rds("processing/stations_in_study.rds") %>% 
+  select(code, lon, lat) %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+read_rds("processing/bg.rds") %>% 
+  as_tibble() %>%
+  # Join in 10-smoothed cases
+  left_join(
+    by = c("geoid" = "geoid10"), 
+    y = read_rds("processing/bgdata_imp10.rds") %>% 
+  as_tibble() %>%
+  magrittr::set_colnames(value = names(.) %>% paste(., "10", sep = "")) %>%
+  select(geoid10, contains("smooth"))) %>%
+    # Join in 5-smoothed cases
+  left_join(
+    by = c("geoid" = "geoid5"), 
+    y = read_rds("processing/bgdata_imp5.rds") %>% 
+  as_tibble() %>%
+  magrittr::set_colnames(value = names(.) %>% paste(., "5", sep = "")) %>%
+  select(geoid5, contains("smooth"))) %>%
+  st_as_sf(crs = 4326) %>%
+  select(geoid, area, names(.)[-c(1,2)] %>% sort()) %>%
+  saveRDS("processing/bgdataset.rds")
+
+mypoints %>%
+  # Spatially join in the code of points 
+  st_join(read_rds("processing/bgdataset.rds"), left = TRUE) %>%
+  # Filter to just places in the buffer zone
+  filter(code %in% read_rds("processing/code_geoid.rds")$code) %>%
+  saveRDS("processing/stationbg_dataset.rds")
+```
+
+## Get Dates
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+get_all_days <- function(year, day_num) {
+    days <- as.POSIXlt(paste(year, 1:366, sep="-"), format="%Y-%j")
+    Ms <- days[days$wday==day_num]
+    Ms[!is.na(Ms)]  # Needed to remove NA from day 366 in non-leap years
+    return(Ms)
+}
+
+get_one_year = function(myyear){
+  1:7 %>%
+    map(~get_all_days(myyear, day_num = .) %>% data.frame(date = .)) %>%
+    bind_rows(.id = "weekday") %>%
+    return()
+}
+
+data.frame(weekday = 1:7) %>%
+  split(.$weekday) %>%
+  map_dfr(~, .id = "weekday")
+
+data.frame(year = 2011:2021) %>%
+  split(.$year) %>%
+  map_dfr(~get_one_year(myyear = .), .id = "year") %>%
+  mutate(weekday = weekday %>% recode(
+    "1" = "Monday",
+    "2" = "Tuesday",
+    "3" = "Wednesday",
+    "4" = "Thursday",
+    "5" = "Friday",
+    "6" = "Saturday",
+    "7" = "Sunday")) %>%
+  saveRDS("processing/dates.rds")
+```
+
+
+## Rush Hour
+
+
+### SQL
+
+```{r, eval = FALSE}
+# an option using our failed SQLite database
+mydat <- dbConnect(RSQLite::SQLite(), "bluebikes.sqlite")
+
+tbl(mydat, 'trips') %>% 
+  # October Biking Every Year in Study Period
+  filter(str_sub(start_date, 6,7) == "10") %>%
+  filter(str_sub(end_date, 6,7) == "10") %>%
+  # During Rush-Hour
+  filter(
+    # Zoom into trips starting in morning rush hour
+    str_sub(start_date, 12, 13) %in% c("06", "07", "08", "09") |
+      # Or trips starting during even rush hour
+      str_sub(start_date, 12, 13) %in% c("03", "04", "05", "06") |           
+      # Zoom into trips ending in morning rush hour
+      str_sub(end_date, 12, 13) %in% c("06", "07", "08", "09") |
+      # Or trips ending in evening rush hour
+      str_sub(end_date, 12, 13) %in% c("03", "04", "05", "06")
+  ) %>%
+  # Get daily measurements
+  group_by(day = str_sub(start_date, 9,10)) %>%
+  # Count trips per day
+  summarize(count = n()) %>%
+  collect()
+
+# 604,488 rows - much more manageable
+
+dbDisconnect(mydat)
+```
+
+
+### .rds
+
+Let's count the number of riders who go from station A to station B during Rush Hour each day, first in the morning, and then in the evening. We'll only count people during Rush Hour in the morning (6:00-10:00 AM) and evening (3:00-6:00 PM), on weekdays.
+
+#### Temporal Change
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+library(tidyverse)
+library(lubridate)
+library(future)
+library(furrr)
+
+# Identify dates to exclude
+mydates <- read_rds("processing/dates.rds") %>%
+  filter(!weekday %in% c("Sunday", "Saturday")) %>%
+  mutate(date = str_sub(date, 1,10) %>% as.character()) %>%
+  select(date) %>%
+  unlist() %>% unname()
+
+get_tally = function(mydata){
+  require(tidyverse)
+  require(lubridate)
+  mydata %>%
+    read_rds(file = .) %>%
+    # Filter out Sunday or Saturday riders
+    # Make sure start or end days are only Monday thru Friday
+    filter(str_sub(start_date, 1, 10) %in% mydates &
+             str_sub(end_date, 1, 10) %in% mydates) %>%
+    # During Rush-Hour
+    filter(
+      # Zoom into trips starting in morning rush hour
+      str_sub(start_date, 12, 13) %in% c("06", "07", "08", "09") |
+        # Or trips starting during evening rush hour
+        str_sub(start_date, 12, 13) %in% c("15", "16", "17", "18") |           
+        # Zoom into trips ending in morning rush hour
+        str_sub(end_date, 12, 13) %in% c("06", "07", "08", "09") |
+        # Or trips ending in evening rush hour
+        str_sub(end_date, 12, 13) %in% c("15", "16", "17", "18")
+    ) %>%
+    # Classify by morning or evening
+    mutate(rush = case_when(
+      str_sub(start_date, 12, 13) %in% c("06", "07", "08", "09") |
+        # Zoom into trips ending in morning rush hour
+        str_sub(end_date, 12, 13) %in% c("06", "07", "08", "09") ~ "am",
+      
+      # Or trips starting during evening rush hour
+      str_sub(start_date, 12, 13) %in% c("15", "16", "17", "18") |           
+        # Or trips ending in evening rush hour
+        str_sub(end_date, 12, 13) %in% c("15", "16", "17", "18") ~ "pm",
+      
+      TRUE ~ "other")) %>%
+    
+    # Get daily measurements
+    group_by(
+      day = lubridate::floor_date(as.POSIXct(start_date), unit = "day"),
+      rush) %>%
+    # Count trips per day
+    summarize(count = n()) %>%
+    ungroup() %>%
+    return()
+}
+
+
+
+myworkers <- availableWorkers() %>% length() - 1
+
+plan(multisession, workers = myworkers)
+
+data.frame(file = dir("processing/rides/", full.names = TRUE)) %>%
+  split(.$file) %>%
+  furrr::future_map_dfr(~get_tally(.$file), .progress = TRUE) %>%
+  saveRDS("processing/tally_rush.rds")
+
+plan(sequential)
+
+# Sunny
+```
+
+
+
+#### Edgewise Temporal Change
+
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+library(tidyverse)
+library(lubridate)
+library(future)
+library(furrr)
+
+# Identify dates to exclude
+mydates <- read_rds("processing/dates.rds") %>%
+  filter(!weekday %in% c("Sunday", "Saturday")) %>%
+  mutate(date = str_sub(date, 1,10) %>% as.character()) %>%
+  select(date) %>%
+  unlist() %>% unname()
+
+get_edge_tally = function(mydata){
+  require(tidyverse)
+  require(lubridate)
+  mydata %>%
+    read_rds(file = .) %>%
+    # Filter out Sunday or Saturday riders
+    # Make sure start or end days are only Monday thru Friday
+    filter(str_sub(start_date, 1, 10) %in% mydates &
+             str_sub(end_date, 1, 10) %in% mydates) %>%
+    # During Rush-Hour
+    filter(
+      # Zoom into trips starting in morning rush hour
+      str_sub(start_date, 12, 13) %in% c("06", "07", "08", "09") |
+        # Or trips starting during evening rush hour
+        str_sub(start_date, 12, 13) %in% c("15", "16", "17", "18") |           
+        # Zoom into trips ending in morning rush hour
+        str_sub(end_date, 12, 13) %in% c("06", "07", "08", "09") |
+        # Or trips ending in evening rush hour
+        str_sub(end_date, 12, 13) %in% c("15", "16", "17", "18")
+    ) %>%
+    # Classify by morning or evening
+    mutate(rush = case_when(
+      str_sub(start_date, 12, 13) %in% c("06", "07", "08", "09") |
+        # Zoom into trips ending in morning rush hour
+        str_sub(end_date, 12, 13) %in% c("06", "07", "08", "09") ~ "am",
+      
+      # Or trips starting during evening rush hour
+      str_sub(start_date, 12, 13) %in% c("15", "16", "17", "18") |           
+        # Or trips ending in evening rush hour
+        str_sub(end_date, 12, 13) %in% c("15", "16", "17", "18") ~ "pm",
+      
+      TRUE ~ "other")) %>%
+    
+    # Get daily measurements
+    group_by(
+      start_code, end_code,
+      day = lubridate::floor_date(as.POSIXct(start_date), unit = "day"),
+      rush) %>%
+    # Count trips per day
+    summarize(count = n()) %>%
+    ungroup() %>%
+    return()
+}
+
+
+
+myworkers <- availableWorkers() %>% length() - 1
+
+plan(multisession, workers = myworkers)
+
+data.frame(file = dir("processing/rides/", full.names = TRUE) 
+             # Tripal run
+           #  sample(size = 5, replace = FALSE)
+           ) %>%
+  split(.$file) %>%
+  furrr::future_map_dfr(~get_edge_tally(.$file), .progress = TRUE) %>%
+  saveRDS("processing/tally_rush_edges.rds")
+
+plan(sequential)
+
+
+read_rds("processing/tally_rush.rds") %>% dim()
+read_rds("processing/rides/202112.rds") %>% tail()
+# Sunny
+```
+
+
+
+Alright! I've simplified our data into 2 datasets.
+
+- daily count dataset: describes how many rides occurred each day during rushhour (split into am or pm rushhour.) Includes 5087 day observations, about half of which are am and half which are pm.
+
+- daily source-destination count dataset: describes how many rides occurred between each pair of stations during rushhour (split into am or pm rushhour.) Includes 5,191,203 station-pair-days observations, about half of which are am and half which are pm.
+
+
+
+## Show Edges
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+net <- tbl(mydat, 'trips') %>% 
+  head(100) %>%
+  collect() %>%
+  left_join(by = c("start_code" = "code"), 
+            y = read_rds("processing/stations_in_study.rds") %>% 
+              select(code, start_lon = lon, start_lat = lat)) %>%
+  left_join(by = c("end_code" = "code"), 
+            y = read_rds("processing/stations_in_study.rds") %>% 
+              select(code, end_lon = lon, end_lat = lat)) %>%
+  filter(!is.na(start_lon) & !is.na(end_lon)) %>%
+  # Convert to sf linestring format
+  #https://stackoverflow.com/questions/51918536/r-create-linestring-from-two-points-in-same-row-in-dataframe
+  mutate(id = 1:n()) %>%
+#  split(.$id) %>%
+  # Needs work
+  mutate(geometry = sprintf("LINESTRING(%s %s, %s %s)", start_lon, end_lon, start_lat, end_lat)) %>%
+  st_as_sf(., wkt = "geometry", crs = 4326)
+```
+
+
+
+
+# 4. Export
+
+```{r, message = FALSE, warning = FALSE, eval = FALSE}
+dir.create("our_data")
+
+# Gather our station-point data with block group traits
+read_rds("processing/stationbg_dataset.rds") %>%
+    # If a NaN shows up, make it an NA
+  mutate_at(vars(area:pop_women_2019_smooth5), list(~if_else(is.nan(.), true = NA_real_, false = .))) %>%
+  write_rds("our_data/stationbg_dataset.rds")
+
+# Gather our block-group polygon data
+read_rds("processing/bgdataset.rds") %>%
+  write_rds("our_data/bgdataset.rds")
+
+# Gather our dataset of source-destination edges, per day, in morning and evening rushhour
+read_rds("processing/tally_rush_edges.rds") %>%
+  write_rds("our_data/tally_rush_edges.rds")
+
+# Gather our dataset of daily ridership, per day, in morning and evening rushhour
+read_rds("processing/tally_rush.rds") %>%
+  write_rds("our_data/tally_rush.rds")
+
+# Gather our dataset of all dates in the last 10 years
+read_rds("processing/dates.rds") %>%
+  write_rds("our_data/dates.rds")
+
+# Finally, let's try to make a sqllite dataset
+library(tidyverse)
+library(RSQLite)
+library(DBI)
+
+dbDisconnect(mydat)
+#unlink("our_data/bluebikes.sqlite")
+
+
+# Initialize a new SQLite dataset
+mydat <- dbConnect(RSQLite::SQLite(), "our_data/bluebikes.sqlite")
+
+
+# initialize it with fake data
+mydat %>% dbWriteTable(
+  name = "tally_rush_edges",
+  value = read_rds("our_data/tally_rush_edges.rds") %>%
+    mutate(day = as.character(day)),
+  append = TRUE)
+
+mydat %>% dbWriteTable(
+  name = "tally_rush",
+  value = read_rds("our_data/tally_rush.rds") %>% 
+    mutate(day = as.character(day)),
+  append = TRUE)
+
+mydat %>% dbWriteTable(
+  name = "dates",
+  value = read_rds("our_data/dates.rds") %>%
+    mutate(date = as.character(date)),
+  append = TRUE)
+
+#mydat %>% dbWriteTable(
+#  name = "stationbg_dataset",
+#  value = read_rds("our_data/stationbg_dataset.rds") %>%
+#    as_tibble() %>%
+#    mutate(x = st_coordinates(geometry)[,1],
+#           y = st_coordinates(geometry)[,2]) %>%
+#    select(-geometry),
+#  append = TRUE)
+
+
+tbl(mydat, 'tally_rush') %>%
+  head()
+#https://inbo.github.io/tutorials/tutorials/r_large_data_files_handling/
+tbl(mydat, 'trips') %>%
+  group_by(start_code) %>%
+  count() %>%
+  collect()
+
+tbl(mydat, 'trips')
+
+
+tbl(mydat, 'stationbg_dataset') %>%
+  head()
+
+dbDisconnect(mydat)
+
+
+```
+
+
+
+
