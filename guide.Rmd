@@ -15,7 +15,14 @@ knitr::opts_chunk$set(cache = TRUE)
 
 # 0. Getting Started
 
-Welcome! This site presents all materials for replicating our team's project analyzing the Boston BlueBikes network. You can start your own RStudio.Cloud project with this data using the [following link](https://rstudio.cloud/project/3454345). 
+Welcome! This site presents all materials for replicating our team's project analyzing the Boston BlueBikes network. 
+
+First step: Unzip the `our_data/bluebikes.zip` file into `our_data/bluebikes.sqlite`.
+
+```{r}
+unzip("our_data/bluebikes.zip")
+
+```
 
 This RStudioCloud project is our repository for sharing all coding, data, and new techniques for our research project. To see our code for building the dataset, please see ```project_builder_code.Rmd``` in our RStudioCloud project. To see our code for analyzing the dataset, see below (also labelled ```guide.Rmd``` in the project)!
 
@@ -47,7 +54,8 @@ There's a lot of it! Here's a small sample of the data that you can use to explo
 Check out our data, 'test data', which contains bluebikes trips from December 2021. It's a HUGE file, so a good way to start would be by using ```sample_n()``` to take a random sample of it, rather than using the whole thing. Here's an example.
 
 ```{r, eval = FALSE, echo = FALSE}
-read_csv("raw_data/202112-bluebikes-tripdata.csv") %>%
+read_rds("processing/rides/202112.rds")  %>%
+#read_csv("raw_data/202112-bluebikes-tripdata.csv") %>%
   magrittr::set_colnames(value = names(.) %>% tolower() %>% str_replace_all(" ", "_")) %>%
   rename(
     from_x = start_station_longitude,
