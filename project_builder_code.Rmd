@@ -1263,3 +1263,12 @@ y = read_rds("processing/tally_rush_edges.rds") %>% dim()
 x; y
 remove(x,y)
 ```
+
+## Zip Bluebikes.sqlite
+
+```{r}
+zip(zipfile = "our_data/bluebikes.zip", files = "our_data/bluebikes.sqlite")
+
+```
+
+
