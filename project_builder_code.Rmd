@@ -1180,11 +1180,11 @@ read_rds("processing/bgdataset.rds") %>%
 
 # Gather our dataset of source-destination edges, per day, in morning and evening rushhour
 read_rds("processing/tally_rush_edges.rds") %>%
-  write_rds("our_data/tally_rush_edges.rds")
+  saveRDS("our_data/tally_rush_edges.rds")
 
 # Gather our dataset of daily ridership, per day, in morning and evening rushhour
 read_rds("processing/tally_rush.rds") %>%
-  write_rds("our_data/tally_rush.rds")
+  saveRDS("our_data/tally_rush.rds")
 
 # Gather our dataset of all dates in the last 10 years
 read_rds("processing/dates.rds") %>%
@@ -1253,4 +1253,13 @@ dbDisconnect(mydat)
 
 
 
+## Size Comparisons
 
+```{r}
+library(dplyr)
+library(readr)
+x = read_rds("our_data/tally_rush_edges.rds") %>% dim()
+y = read_rds("processing/tally_rush_edges.rds") %>% dim()
+x; y
+remove(x,y)
+```
