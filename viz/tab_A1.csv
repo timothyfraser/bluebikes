@@ -1,0 +1,5 @@
+var,var_label,mean,sd,median,iqr,min,max
+pop_nonwhite,% Nonwhite,0.424,0.199,0.382,-0.224,0.068,0.965
+pop_lower_income,% Lower Income (<$60K),0.308,0.150,0.281,-0.208,0.050,0.746
+pop_some_college_smooth10,% Some College Education,0.192,0.102,0.160,-0.150,0.019,0.496
+pop_density_2020_smooth10,Population Density,11 836.547,5 730.302,10 505.268,-6 834.307,1 885.760,31 485.790

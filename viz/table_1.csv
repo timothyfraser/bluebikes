@@ -1,0 +1,24 @@
+controls,obs_Income,obs_Race,p_label_Income,p_label_Race
+"1
+Year",0.885,0.751,p < 0.001,p = 0.001
+"2
+With
+Traffic",0.885,0.751,p < 0.001,p = 0.106
+"3
+With
+Distance",0.885,0.751,p < 0.001,p = 0.1
+"4
+With
+Density",0.885,0.751,p < 0.001,p = 0.454
+"5
+With
+Education",0.885,0.751,p = 0.003,p = 0.723
+"6
+With
+Age",0.885,0.751,p < 0.001,p = 0.687
+"7
+With
+Income",0.885,0.751,p = 0.032,p = 0.959
+"8
+With
+Race",0.885,0.751,p = 0.018,p = 0.679

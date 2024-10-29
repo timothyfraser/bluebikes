@@ -1348,6 +1348,7 @@ mytext <- mycompare %>%
                              TRUE ~ p_label),
          obs_scaled = if_else(is.na(obs_scaled), 0, obs_scaled))
 
+mytext
 # You can test it out here.
 #mycompare %>% 
 #  filter(str_detect(variable, "Education") ) %>%
