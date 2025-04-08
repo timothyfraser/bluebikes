@@ -2,11 +2,13 @@
 
 - Repository for Study: _Cycling Cities: Measuring Urban Mobility Mixing in Bikeshare Networks_
 - Authors: Timothy Fraser, Katherine Van Woert, Sophia Olivieri, Jonathan Baron, Katelyn Buckley, & Pamela Lalli
-- Maintainer: Timothy Fraser <tmf77@cornell.edu>
+- Maintainer: Timothy Fraser, Systems Engineering Program, Cornell University <tmf77@cornell.edu>
 
 ## Welcome!
 
 This site presents all materials for replicating our team's project analyzing the Boston BlueBikes network. All code is done in the R programming language.
+
+![Banner](viz/fig_2_map_slice.png)
 
 ## Navigating the Code
 
